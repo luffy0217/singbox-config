@@ -1,0 +1,615 @@
+{
+  "$schema": "https://raw.githubusercontent.com/reF1nd/sing-box/reF1nd-stable/docs/schema.json",
+  "providers": [
+    {
+      "tag": "🛫 机场订阅",
+      "type": "remote",
+      "url": "https://REPLACE-ME.invalid/clash-subscription?flag=clash",
+      "path": "./providers/airport.yaml",
+      "user_agent": "clash.meta",
+      "include": "(?i)(🇭🇰|港|hk|hongkong|hong kong|🇹🇼|台|tw|taiwan|tai wan|🇯🇵|日|jp|japan|🇸🇬|新|sg|singapore|🇺🇸|美|us|unitedstates|united states)",
+      "health_check": {
+        "enabled": true,
+        "url": "https://www.gstatic.com/generate_204"
+      }
+    }
+  ],
+  "log": {
+    "level": "info",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "hosts",
+        "type": "hosts",
+        "predefined": {
+          "dns.alidns.com": [
+            "223.5.5.5",
+            "223.6.6.6",
+            "2400:3200::1",
+            "2400:3200:baba::1"
+          ],
+          "doh.pub": [
+            "1.12.12.12",
+            "120.53.53.53"
+          ],
+          "dns.google": [
+            "8.8.8.8",
+            "8.8.4.4",
+            "2001:4860:4860::8888",
+            "2001:4860:4860::8844"
+          ],
+          "cloudflare-dns.com": [
+            "1.1.1.1",
+            "1.0.0.1",
+            "2606:4700:4700::1111",
+            "2606:4700:4700::1001"
+          ]
+        }
+      },
+      {
+        "tag": "dns_local",
+        "type": "local"
+      },
+      {
+        "tag": "dns_alidns",
+        "type": "quic",
+        "server": "dns.alidns.com",
+        "domain_resolver": "hosts"
+      },
+      {
+        "tag": "dns_dnspod",
+        "type": "https",
+        "server": "doh.pub",
+        "domain_resolver": "hosts"
+      },
+      {
+        "tag": "dns_google",
+        "type": "https",
+        "server": "dns.google",
+        "domain_resolver": "hosts",
+        "detour": "GLOBAL"
+      },
+      {
+        "tag": "dns_cloudflare",
+        "type": "https",
+        "server": "cloudflare-dns.com",
+        "domain_resolver": "hosts",
+        "detour": "GLOBAL"
+      },
+      {
+        "tag": "dns_direct",
+        "type": "group",
+        "servers": [
+          "dns_alidns",
+          "dns_dnspod"
+        ]
+      },
+      {
+        "tag": "dns_proxy",
+        "type": "group",
+        "servers": [
+          "dns_google",
+          "dns_cloudflare"
+        ]
+      },
+      {
+        "tag": "dns_adguard",
+        "type": "udp",
+        "server": "127.0.0.1",
+        "server_port": 5591
+      },
+      {
+        "tag": "dns_fakeip",
+        "type": "fakeip",
+        "inet4_range": "198.18.0.0/15",
+        "inet6_range": "fc00::/16"
+      }
+    ],
+    "rules": [
+      {
+        "preferred_by": [
+          "hosts"
+        ],
+        "server": "hosts"
+      },
+      {
+        "clash_mode": [
+          "Direct"
+        ],
+        "server": "dns_direct"
+      },
+      {
+        "clash_mode": [
+          "Global"
+        ],
+        "server": "dns_proxy"
+      },
+      {
+        "rule_set": [
+          "private"
+        ],
+        "server": "dns_local"
+      },
+      {
+        "rule_set": [
+          "microsoft-cn",
+          "apple-cn",
+          "google-cn",
+          "games-cn"
+        ],
+        "action": "evaluate",
+        "server": "dns_adguard"
+      },
+      {
+        "match_response": true,
+        "ip_accept_any": true,
+        "invert": true,
+        "action": "respond"
+      },
+      {
+        "rule_set": [
+          "microsoft-cn",
+          "apple-cn",
+          "google-cn",
+          "games-cn"
+        ],
+        "server": "dns_direct"
+      },
+      {
+        "rule_set": [
+          "cn"
+        ],
+        "action": "evaluate",
+        "server": "dns_adguard"
+      },
+      {
+        "match_response": true,
+        "ip_accept_any": true,
+        "invert": true,
+        "action": "respond"
+      },
+      {
+        "rule_set": [
+          "cn"
+        ],
+        "server": "dns_direct"
+      },
+      {
+        "action": "evaluate",
+        "server": "dns_proxy",
+        "client_subnet": "211.137.58.0/24"
+      },
+      {
+        "match_response": true,
+        "rule_set": [
+          "cnip"
+        ],
+        "action": "respond"
+      },
+      {
+        "match_response": true,
+        "ip_accept_any": true,
+        "invert": true,
+        "action": "respond"
+      },
+      {
+        "action": "evaluate",
+        "server": "dns_adguard"
+      },
+      {
+        "match_response": true,
+        "ip_accept_any": true,
+        "invert": true,
+        "action": "respond"
+      },
+      {
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
+        "server": "dns_fakeip"
+      }
+    ],
+    "final": "dns_proxy",
+    "strategy": "prefer_ipv4",
+    "optimistic": true,
+    "reverse_mapping": true,
+    "client_subnet": "211.137.58.0/24"
+  },
+  "http_clients": [
+    {
+      "tag": "detour_proxy",
+      "detour": "GLOBAL"
+    }
+  ],
+  "inbounds": [
+    {
+      "tag": "tun-in",
+      "type": "tun",
+      "interface_name": "sing-box",
+      "address": [
+        "172.18.0.1/30",
+        "fdfe:dcba:9876::1/126"
+      ],
+      "auto_route": true,
+      "strict_route": true
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "节点选择",
+      "type": "selector",
+      "outbounds": [
+        "香港节点",
+        "台湾节点",
+        "日本节点",
+        "新加坡节点",
+        "美国节点"
+      ]
+    },
+    {
+      "tag": "网络测试",
+      "type": "selector",
+      "outbounds": [
+        "节点选择",
+        "香港节点",
+        "台湾节点",
+        "日本节点",
+        "新加坡节点",
+        "美国节点"
+      ]
+    },
+    {
+      "tag": "游戏平台",
+      "type": "selector",
+      "outbounds": [
+        "节点选择",
+        "香港节点",
+        "台湾节点",
+        "日本节点",
+        "新加坡节点",
+        "美国节点"
+      ]
+    },
+    {
+      "tag": "AI 平台",
+      "type": "selector",
+      "outbounds": [
+        "节点选择",
+        "香港节点",
+        "台湾节点",
+        "日本节点",
+        "新加坡节点",
+        "美国节点"
+      ]
+    },
+    {
+      "tag": "游戏服务",
+      "type": "selector",
+      "outbounds": [
+        "全球直连",
+        "节点选择"
+      ]
+    },
+    {
+      "tag": "微软服务",
+      "type": "selector",
+      "outbounds": [
+        "全球直连",
+        "节点选择"
+      ]
+    },
+    {
+      "tag": "谷歌服务",
+      "type": "selector",
+      "outbounds": [
+        "全球直连",
+        "节点选择"
+      ]
+    },
+    {
+      "tag": "苹果服务",
+      "type": "selector",
+      "outbounds": [
+        "全球直连",
+        "节点选择"
+      ]
+    },
+    {
+      "tag": "国内域名",
+      "type": "selector",
+      "outbounds": [
+        "全球直连",
+        "节点选择"
+      ]
+    },
+    {
+      "tag": "国内 IP",
+      "type": "selector",
+      "outbounds": [
+        "全球直连",
+        "节点选择"
+      ]
+    },
+    {
+      "tag": "国外域名",
+      "type": "selector",
+      "outbounds": [
+        "节点选择",
+        "香港节点",
+        "台湾节点",
+        "日本节点",
+        "新加坡节点",
+        "美国节点"
+      ]
+    },
+    {
+      "tag": "电报消息",
+      "type": "selector",
+      "outbounds": [
+        "节点选择",
+        "香港节点",
+        "台湾节点",
+        "日本节点",
+        "新加坡节点",
+        "美国节点"
+      ]
+    },
+    {
+      "tag": "直连软件",
+      "type": "selector",
+      "outbounds": [
+        "全球直连"
+      ]
+    },
+    {
+      "tag": "私有网络",
+      "type": "selector",
+      "outbounds": [
+        "全球直连"
+      ]
+    },
+    {
+      "tag": "漏网之鱼",
+      "type": "selector",
+      "outbounds": [
+        "节点选择",
+        "香港节点",
+        "台湾节点",
+        "日本节点",
+        "新加坡节点",
+        "美国节点",
+        "全球直连"
+      ]
+    },
+    {
+      "tag": "全球直连",
+      "type": "selector",
+      "outbounds": [
+        "DIRECT"
+      ]
+    },
+    {
+      "tag": "DIRECT",
+      "type": "direct"
+    },
+    {
+      "tag": "GLOBAL",
+      "type": "selector",
+      "outbounds": [
+        "节点选择",
+        "DIRECT"
+      ]
+    },
+    {
+      "tag": "香港节点",
+      "type": "urltest",
+      "providers": [
+        "🛫 机场订阅"
+      ],
+      "include": "(?i)(🇭🇰|港|hk|hongkong|hong kong)"
+    },
+    {
+      "tag": "台湾节点",
+      "type": "urltest",
+      "providers": [
+        "🛫 机场订阅"
+      ],
+      "include": "(?i)(🇹🇼|台|tw|taiwan|tai wan)"
+    },
+    {
+      "tag": "日本节点",
+      "type": "urltest",
+      "providers": [
+        "🛫 机场订阅"
+      ],
+      "include": "(?i)(🇯🇵|日|jp|japan)"
+    },
+    {
+      "tag": "新加坡节点",
+      "type": "urltest",
+      "providers": [
+        "🛫 机场订阅"
+      ],
+      "include": "(?i)(🇸🇬|新|sg|singapore)"
+    },
+    {
+      "tag": "美国节点",
+      "type": "urltest",
+      "tolerance": 100,
+      "providers": [
+        "🛫 机场订阅"
+      ],
+      "include": "(?i)(🇺🇸|美|us|unitedstates|united states)"
+    }
+  ],
+  "route": {
+    "default_domain_resolver": "dns_direct",
+    "rules": [
+      {
+        "rule_set": [
+          "telegramip"
+        ],
+        "invert": true,
+        "action": "sniff"
+      },
+      {
+        "type": "logical",
+        "mode": "or",
+        "rules": [
+          {
+            "protocol": [
+              "dns"
+            ]
+          },
+          {
+            "port": 53
+          }
+        ],
+        "action": "hijack-dns"
+      },
+      {
+        "clash_mode": [
+          "Direct"
+        ],
+        "outbound": "DIRECT"
+      },
+      {
+        "clash_mode": [
+          "Global"
+        ],
+        "outbound": "GLOBAL"
+      },
+      {
+        "rule_set": [
+          "private"
+        ],
+        "outbound": "私有网络"
+      },
+      {
+        "rule_set": [
+          "applications"
+        ],
+        "outbound": "直连软件"
+      },
+      {
+        "rule_set": [
+          "microsoft-cn"
+        ],
+        "outbound": "微软服务"
+      },
+      {
+        "rule_set": [
+          "apple-cn"
+        ],
+        "outbound": "苹果服务"
+      },
+      {
+        "rule_set": [
+          "google-cn"
+        ],
+        "outbound": "谷歌服务"
+      },
+      {
+        "rule_set": [
+          "games-cn"
+        ],
+        "outbound": "游戏服务"
+      },
+      {
+        "rule_set": [
+          "games"
+        ],
+        "outbound": "游戏平台"
+      },
+      {
+        "rule_set": [
+          "ai"
+        ],
+        "outbound": "AI 平台"
+      },
+      {
+        "rule_set": [
+          "networktest"
+        ],
+        "outbound": "网络测试"
+      },
+      {
+        "rule_set": [
+          "proxy"
+        ],
+        "outbound": "国外域名"
+      },
+      {
+        "rule_set": [
+          "cn"
+        ],
+        "outbound": "国内域名"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "私有网络"
+      },
+      {
+        "rule_set": [
+          "cnip"
+        ],
+        "outbound": "国内 IP"
+      },
+      {
+        "rule_set": [
+          "telegramip"
+        ],
+        "outbound": "电报消息"
+      }
+    ],
+    "rule_set": [
+      {
+        "tag": [
+          "private",
+          "applications",
+          "microsoft-cn",
+          "apple-cn",
+          "google-cn",
+          "games-cn",
+          "games",
+          "ai",
+          "networktest",
+          "proxy",
+          "cn",
+          "cnip",
+          "telegramip"
+        ],
+        "type": "remote",
+        "format": "binary",
+        "path": "./ruleset/{tag}.srs",
+        "url": "https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/{tag}.srs"
+      }
+    ],
+    "final": "漏网之鱼",
+    "auto_detect_interface": true
+  },
+  "services": [
+    {
+      "type": "api",
+      "listen": "127.0.0.1",
+      "listen_port": 9999,
+      "secret": "",
+      "access_control_allow_private_network": false
+    }
+  ],
+  "experimental": {
+    "cache_file": {
+      "enabled": true,
+      "store_fakeip": true
+    },
+    "clash_api": {
+      "external_controller": "127.0.0.1:9090",
+      "secret": "",
+      "access_control_allow_private_network": false
+    },
+    "urltest_unified_delay": true
+  }
+}
