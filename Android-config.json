@@ -405,7 +405,7 @@
     },
     {
       "tag": "香港节点",
-      "type": "urltest",
+      "type": "elector",
       "providers": [
         "🛫 机场订阅"
       ],
@@ -413,7 +413,7 @@
     },
     {
       "tag": "台湾节点",
-      "type": "urltest",
+      "type": "elector",
       "providers": [
         "🛫 机场订阅"
       ],
@@ -421,7 +421,7 @@
     },
     {
       "tag": "日本节点",
-      "type": "urltest",
+      "type": "elector",
       "providers": [
         "🛫 机场订阅"
       ],
@@ -429,7 +429,7 @@
     },
     {
       "tag": "新加坡节点",
-      "type": "urltest",
+      "type": "elector",
       "providers": [
         "🛫 机场订阅"
       ],
@@ -437,8 +437,7 @@
     },
     {
       "tag": "美国节点",
-      "type": "urltest",
-      "tolerance": 100,
+      "type": "elector",
       "providers": [
         "🛫 机场订阅"
       ],
