@@ -115,6 +115,22 @@
         "server": "hosts"
       },
       {
+        "rule_set": [
+          "private"
+        ],
+        "server": "dns_local"
+      },
+      {
+        "action": "evaluate",
+        "server": "dns_adguard",
+        "tag": "adguard_check"
+      },
+      {
+        "match_response": "adguard_check",
+        "response_rcode": "NXDOMAIN",
+        "action": "respond"
+      },
+      {
         "clash_mode": [
           "Direct"
         ],
@@ -128,47 +144,12 @@
       },
       {
         "rule_set": [
-          "private"
-        ],
-        "server": "dns_local"
-      },
-      {
-        "rule_set": [
-          "microsoft-cn",
-          "apple-cn",
-          "google-cn",
-          "games-cn"
-        ],
-        "action": "evaluate",
-        "server": "dns_adguard"
-      },
-      {
-        "match_response": true,
-        "ip_accept_any": true,
-        "invert": true,
-        "action": "respond"
-      },
-      {
-        "rule_set": [
           "microsoft-cn",
           "apple-cn",
           "google-cn",
           "games-cn"
         ],
         "server": "dns_direct"
-      },
-      {
-        "rule_set": [
-          "cn"
-        ],
-        "action": "evaluate",
-        "server": "dns_adguard"
-      },
-      {
-        "match_response": true,
-        "ip_accept_any": true,
-        "invert": true,
-        "action": "respond"
       },
       {
         "rule_set": [
@@ -179,27 +160,18 @@
       {
         "action": "evaluate",
         "server": "dns_proxy",
-        "client_subnet": "211.137.58.0/24"
+        "client_subnet": "211.137.58.0/24",
+        "tag": "proxy_check"
       },
       {
-        "match_response": true,
+        "match_response": "proxy_check",
         "rule_set": [
           "cnip"
         ],
         "action": "respond"
       },
       {
-        "match_response": true,
-        "ip_accept_any": true,
-        "invert": true,
-        "action": "respond"
-      },
-      {
-        "action": "evaluate",
-        "server": "dns_adguard"
-      },
-      {
-        "match_response": true,
+        "match_response": "proxy_check",
         "ip_accept_any": true,
         "invert": true,
         "action": "respond"
